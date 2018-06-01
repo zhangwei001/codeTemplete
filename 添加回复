@@ -1,0 +1,36 @@
+    //回复列表转树状结构
+     getReplyTree(data,parentId){
+       var tree=[],temp ,replyLevel=0;
+       for(let i=0;i<data.length;i++){  
+          let node = data[i];
+          if(node.parent_id == parentId){
+            this.replyLevel++;
+            temp =Object.assign({},data[i],{level:this.replyLevel,children:this.getReplyTree(data,node.id)}) 
+            tree.push(temp);
+            if(tree.length>=0){--this.replyLevel }
+          }
+       }
+       return tree;
+     },
+     
+     
+     
+   //添加一条回复到进展列表中 (递归)
+    [types.ADDREPLYFORPROGRESS](state,res){
+        let parseTree= function(list){
+            let i=0, tree =[] ,temp;
+            for(;i<list.length;i++){
+                let node = list[i];
+                if(node.id == res.progress_id){
+                    if(!node['reply_list']){
+                        node['reply_list']=[];
+                    } 
+                    node['reply_list'].unshift(res)
+                    return list;
+                }else{
+                    parseTree( node['reply_list'] ? node['reply_list'] :[])
+                }
+            }
+        }
+        state.progressData =  parseTree( state.progressData)
+    },
