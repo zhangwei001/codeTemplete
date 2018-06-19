@@ -1,0 +1,114 @@
+1、docker的获取和上传
+    1）、获取镜像
+    docker pull 镜像:版本tag
+    例：docker pull it-snapshot-docker.artsz.zte.com.cn/km/jps/it-km-ts-nodeimage:v1.0
+
+    2）、推送镜像
+    docker push 镜像:版本tag
+    例：docker push it-snapshot-docker.artsz.zte.com.cn/km/jps/it-km-ts-nodeimage:v1.0
+    
+2、docker镜像制作
+    1）、Dockerfile
+    Dockerfile是制作docker镜像的配置文件，常用命令：
+    FROM:基础镜像地址
+    COPY:添加本地文件到镜像
+    ADD:添加外部文件到镜像（与COPY相比多了解压功能）
+    RUN:构建镜像时执行命令
+    CMD:构建镜像后调用，就是在启动容器时才调用
+    ENTRYPOINT:配置容器，使其可执行化
+    ENV:设置环境变量
+    EXPOSE :指定与外界交互的端口
+    WORKDIR:工作目录
+   2）、Dockerfile
+    ARG:传入的参数（--build-arg的参数）
+    USER:设定容器运行用户名或UID
+    VOLUME:用于指定持久化目录
+    LABEL:给镜像添加信息
+    MAINTAINER：维护者信息
+    
+    3）、Dockerfile
+    FROM apphub.zte.com.cn/dev/centos:6.8
+    RUN rm -fr /etc/yum.repos.d/*
+    COPY ./Centos6-Base-zte.repo /etc/yum.repos.d/
+    ADD jdk-8u131-linux-x64.gz /usr/local/
+    ADD apache-maven-3.5.0-bin.tar.gz /usr/local/
+    COPY ./settings.xml /usr/local/apache-maven-3.5.0/conf/
+    ENV LANG=en_US.UTF-8 \
+        LANGUAGE=en_US:en \
+        LC_ALL=en_US.UTF-8
+    ENV JAVA_HOME /usr/local/jdk1.8.0_131
+    ENV M2_HOME /usr/local/apache-maven-3.5.0
+    ENV CLASSPATH $JAVA_HOME/lib/dt.jar:$JAVA_HOME/lib/tools.jar:$JAVA_HOME/jre/lib/rt.jar
+    ENV PATH $PATH:$JAVA_HOME/bin:$M2_HOME/bin
+    
+   3、容器使用命令
+       docker run -it 镜像名:版本tag
+        -i:以交互模式运行容器
+        -t:为容器重新分配一个伪输入端
+        -p:指定容器暴露端口,例：127.0.0.1:80:80
+        --name:指定容器名称
+        -v: 容器挂在存储卷，例：/data:/opt
+        --rm:指定容器停止后自动删除容器(不支持-d启动的容器)
+        --restart:指定容器停止后的重启策略
+        --privileged:指定容器是否有特权容器
+        -d:后台运行容器，并返回容器ID
+        
+        
+ 4、容器使用命令
+ 
+       docker run -it 镜像名:版本tag
+      -a stdin:指定标准输入输出类型，STDIN/STDOUT/STDERR
+      -e:设置环境变量
+      -m:设置内存大小
+      -w:工作目录
+      例：docker run --rm --name test-docke -v /data:/opt/dockertmp it-snapshot-docker.artsz.zte.com.cn/km/jps/it-km-ts-nodeimage:v1.2 /bin/bash /opt/dockertmp/run.sh /opt/dockertmp
+      
+     5、常用维护命令
+       查看 docker容器运行情况：docker stats
+      动态修改内存：docker update -m 2028m 容器ID
+      查看所有本地镜像：docker imags
+      查看所有在运行容器:docker ps
+      删除镜像:docker rmi -f 镜像:版本tag
+      删除容器:docker rm -f 容器ID
+      删除无引用镜像:
+      docker rmi -f `docker images | grep '<none>' | awk '{print $3}'`
+      docker rmi -f $(docker images -f "dangling=true" -q)
+      
+      
+      删除异常退出的容器
+        docker rm `docker ps -a | grep Exited | awk'{print $1}'`
+      删除非运行的容器
+        docker rm `docker ps -a -q`
+      删除指定容器后的镜像
+        docker rmi -f `docker images -q -f since=it-snapshot-	docker.artsz.zte.com.cn/km/jps/it-km-ts-nodeimage:v1.1`
+        删除指定容器前和指定容器后的镜像
+	docker rmi -f `docker images -q -f since=docker.io/rancher/scheduler:v0.8.2 -f before=it-snapshot-docker.artsz.zte.com.cn/km/jps/zte-km-jps-task:v1.1.0_Build00372`
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
